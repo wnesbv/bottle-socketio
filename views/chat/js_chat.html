@@ -1,0 +1,77 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+
+<script>
+window.scrollTo(0, document.body.scrollHeight);
+$(document).ready(function () {
+    socket = io.connect();
+
+    socket.on("connect", function () {
+        socket.emit("my_event", { data: "I'm connected!" });
+    });
+    socket.on("disconnect", function () {
+        $("#log").append("<br>Disconnected");
+    });
+    
+    socket.on("my_response", function (msg) {
+        $("#log").append("<br>Received: " + msg.data);
+    });
+    $("form#emit").submit(function (event) {
+        socket.emit("my_event", { data: $("#emit_data").val() });
+        return false;
+    });
+
+    $("form#broadcast").submit(function (event) {
+        socket.emit("my_broadcast_event", {
+            data: $("#broadcast_data").val(),
+            user: $("#token").val(),
+        });
+        $("#broadcast_data").val("").focus();
+        return false;
+    });
+
+    $("form#join").submit(function (event) {
+        socket.emit("join", { room: $("#join_room").val() });
+        return false;
+    });
+    $("form#leave").submit(function (event) {
+        socket.emit("leave", { room: $("#leave_room").val() });
+        return false;
+    });
+    $("form#send_room").submit(function (event) {
+        socket.emit("my_room_event", {
+            room: $("#room_name").val(),
+            data: $("#room_data").val(),
+        });
+        return false;
+    });
+    $("form#close").submit(function (event) {
+        socket.emit("close_room", { room: $("#close_room").val() });
+        return false;
+    });
+    $("form#disconnect").submit(function (event) {
+        socket.emit("disconnect_request");
+        return false;
+    });
+});
+</script>
+
+<script>
+$(function() {
+    $('#upload-btn').click(function() {
+        form_data = new FormData($('#send-img')[0]);
+        $.ajax({
+            type: 'POST',
+            url: '/static/upload-chat',
+            data: form_data,
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function(data) {
+                console.log('Success!');
+            },
+        });
+    });
+});
+</script>

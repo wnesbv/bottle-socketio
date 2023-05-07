@@ -1,0 +1,177 @@
+% rebase('chat.html', title='chat')
+
+
+<h1 class="container lead my-2">SocketIO</h1>
+
+<button type="button" class="btn btn-sm btn-primary" id="toastbtn">
+    Show live user
+</button>
+<div class="card">
+
+    <div class="card-header">
+        <h3 class="lead">create chat</h3>
+    </div>
+        <div class="card-body">
+            <form id="emit" method="POST" action="#" class="d-flex">
+                <input
+                    type="text"
+                    name="emit_data"
+                    id="emit_data"
+                    placeholder="Message"
+                    class="form-control w-75"
+                />
+                <input type="submit" value="Echo" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+
+            <form id="broadcast" method="POST" action="#" class="d-flex">
+                <input
+                    required
+                    id="token"
+                    type="hidden"
+                    value="{{ token }}"
+                />
+                <input
+                    type="text"
+                    name="broadcast_data"
+                    id="broadcast_data"
+                    placeholder="Message"
+                    class="form-control w-75"
+                />
+                <input type="submit" value="Broadcast" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+            
+            <form id="join" method="POST" action="#" class="d-flex">
+                <input
+                    type="text"
+                    name="join_room"
+                    id="join_room"
+                    placeholder="Room Name"
+                    class="form-control w-25"
+                />
+                <input type="submit" value="Join Room" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+            <form id="leave" method="POST" action="#" class="d-flex">
+                <input
+                    type="text"
+                    name="leave_room"
+                    id="leave_room"
+                    placeholder="Room Name"
+                    class="form-control w-25"
+                />
+                <input type="submit" value="Leave Room" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+            <form id="send_room" method="POST" action="#" class="d-flex">
+                <input
+                    type="text"
+                    name="room_name"
+                    id="room_name"
+                    placeholder="Room Name"
+                    class="form-control w-25"
+                />
+                <input
+                    type="text"
+                    name="room_data"
+                    id="room_data"
+                    placeholder="Message"
+                    class="form-control w-75"
+                />
+                <input type="submit" value="Send to Room" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+            <form id="close" method="POST" action="#" class="d-flex">
+                <input
+                    type="text"
+                    name="close_room"
+                    id="close_room"
+                    placeholder="Room Name"
+                    class="form-control w-25"
+                />
+                <input type="submit" value="Close Room" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+            <form id="disconnect" method="POST" action="#">
+                <input type="submit" value="Disconnect" class="btn btn-sm my-2 btn-outline-danger" />
+            </form>
+        </div>
+        <div class="card-footer">
+        <h4>Receive:</h4>
+        <div><p id="log"></p></div>
+        </div>
+
+        <ul id="db_messages" class="list-group list-group-flush">
+            % for i in res:
+            <li class="list-group-item">
+                % if i[1]:
+                <p>{{ i[0] }}: {{ i[1] }}</p>
+                <time>time: {{ i[4] }}</time>
+                % end
+                % if i[3]:
+                <img class="m-4" src="{{ i[3] }}" width="64" />
+                <time>time: {{ i[4] }}</time>
+                % end
+            </li>
+            % end
+        </ul>
+        <hr />
+
+
+    </div>
+</div>
+
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div
+        id="liveToast"
+        class="toast"
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+    >
+        <div class="toast-header">
+            <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="toast"
+                aria-label="Close"
+            ></button>
+        </div>
+        <div class="toast-body">
+            <ul class="list-group list-group-flush">
+            % for i in i_journal:
+                % if i[3]:
+                <li class="list-group-item">
+                    <span class="alert alert-success" role="alert">
+                        <sup class="float-start">connect:</sup>
+                        <span>{{ i[1] }}</span>
+                        <sup class="float-end">{{ i[3] }}</sup>
+                    </span>
+                </li>
+                % end
+                % if i[4]:
+                <li class="list-group-item">
+                    <span class="alert alert-danger" role="alert">
+                        <sup class="float-start">disconnect:</sup>
+                        <span>{{ i[1] }}</span>
+                        <sup class="float-end">{{ i[4] }}</sup>
+                    </span>
+                </li>
+                % end
+            % end
+            </ul>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById("toastbtn").onclick = function () {
+        var toastElList = [].slice.call(document.querySelectorAll(".toast"));
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl);
+        });
+        toastList.forEach((toast) => toast.show());
+    };
+</script>
+
+
+% include('chat/js_chat.html')

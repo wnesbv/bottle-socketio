@@ -1,0 +1,11 @@
+li{
+    list-style-type: none;
+}
+
+a{
+    text-decoration: none;
+}
+input:invalid + button{
+    opacity: 0.6;
+    pointer-events: none;
+}

@@ -18,13 +18,18 @@ JWT_KEY = "!0_77!%_#)p3gk-m_np8sukvi1^9_^38s^l-g505fsqg-1j&2&"
 
 
 # ..
+# def user_io():
+#     payload = {
+#         "mail": who_is_who()[2],
+#     }
+#     userio = jwt.encode(payload, JWT_KEY, JWT_ALGORITHM)
+#     return userio
 
-
-sio = socketio.Server(
-    logger=True,
-    async_mode="gevent",
-    # cookie=("userio") + '=' + user_io()
-)
+# sio = socketio.Server(
+#     logger=True,
+#     async_mode="gevent",
+#     cookie=("userio") + '=' + user_io()
+# )
 
 
 # ..
@@ -33,14 +38,15 @@ sio = socketio.Server(
 def user_visited(environ):
     user_cookie = environ["HTTP_COOKIE"]
 
-    original = user_cookie
-    removed = original.replace("visited=", "")
+    removed = user_cookie.replace(";", "")
+    i_token = dict(i.split('=') for i in removed.split())
+    token = i_token.get('visited')
 
-    item_user = jwt.decode(removed, JWT_KEY, JWT_ALGORITHM)
-    for_user = item_user["mail"]
+    coockie_visited = jwt.decode(token, JWT_KEY, JWT_ALGORITHM)
+    for_user = coockie_visited["mail"]
 
-    print("user visited..! {}".format(for_user))
-    return str(for_user)
+    # print("user visited..! {}".format(for_user))
+    return for_user
 
 
 def save_msg(story, user):
@@ -175,11 +181,12 @@ def disconnect_request(sid):
 def connect(sid, environ):
     sio.emit("my_response", {"data": "Connected", "count": 0}, room=sid)
 
-    print("connect.. {}".format(sid))
-    print("user environ.. {}".format(user_visited(environ)))
+    print(f"Client connect..! {sid}")
+    print(f"user environ.. {user_visited(environ)}")
 
     save_journal(environ)
-    print("save journal connect.. {} timme.. {}".format(user_visited(environ), datetime.now()))
+
+    print(f"save journal connect.. {user_visited(environ)} {datetime.now()}")
 
 
 
@@ -189,7 +196,7 @@ def my_message(sid, data):
 
 @sio.event
 def disconnect(sid):
-    print("Client disconnected..", sid)
+    print("Client disconnected..! ", sid)
 
     user_cookie = sio.get_environ(sid, "/")["HTTP_COOKIE"]
 
@@ -214,4 +221,4 @@ def disconnect(sid):
     con.commit()
     cur.close()
 
-    print("save journal disconnect.. {} timme.. {}".format(for_user, datetime.now()))
+    print(f"save journal disconnect.. {for_user} {datetime.now()}")

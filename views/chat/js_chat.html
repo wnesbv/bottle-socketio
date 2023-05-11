@@ -3,7 +3,6 @@
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
 <script>
-window.scrollTo(0, document.body.scrollHeight);
 $(document).ready(function () {
     socket = io.connect();
 
@@ -54,7 +53,12 @@ $(document).ready(function () {
         socket.emit("disconnect_request");
         return false;
     });
+
 });
+</script>
+
+<script>
+$('html, body').animate({scrollTop: $("#target").offset().top}, 2000);
 </script>
 
 <script>

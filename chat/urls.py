@@ -18,18 +18,12 @@ JWT_KEY = "!0_77!%_#)p3gk-m_np8sukvi1^9_^38s^l-g505fsqg-1j&2&"
 
 
 # ..
-# def user_io():
-#     payload = {
-#         "mail": who_is_who()[2],
-#     }
-#     userio = jwt.encode(payload, JWT_KEY, JWT_ALGORITHM)
-#     return userio
 
-# sio = socketio.Server(
-#     logger=True,
-#     async_mode="gevent",
-#     cookie=("userio") + '=' + user_io()
-# )
+
+sio = socketio.Server(
+    logger=True,
+    async_mode="gevent",
+)
 
 
 # ..
@@ -181,8 +175,8 @@ def disconnect_request(sid):
 def connect(sid, environ):
     sio.emit("my_response", {"data": "Connected", "count": 0}, room=sid)
 
-    print(f"Client connect..! {sid}")
-    print(f"user environ.. {user_visited(environ)}")
+    print(f" Client connect..! {sid}")
+    print(f" user environ.. {user_visited(environ)}")
 
     save_journal(environ)
 

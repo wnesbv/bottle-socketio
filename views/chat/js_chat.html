@@ -4,21 +4,38 @@
 
 <script>
 $(document).ready(function () {
+
+    options = {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: false,
+    };
+
     socket = io.connect();
 
+    socket.once('my_response', function(my_response) {
+        $("#count").append(my_response.count);
+    });
+    socket.on('email', function(email) {
+        $("#user").append(", " + email.user);
+    });
+
     socket.on("connect", function () {
-        socket.emit("my_event", { data: "I'm connected!" });
+        socket.emit(
+            "my_event", {data: "I'm connected..!"}
+        );
     });
+
     socket.on("disconnect", function () {
-        $("#log").append("<br>Disconnected");
+        $("#log").append(
+            "<li class='list-group-item list-group-item-danger'>" + "Disconnected.." + "<time class='ms-2'>" + new Date().toLocaleString("en-US", options) + "</time>" + "</li>"
+        );
     });
-    
     socket.on("my_response", function (msg) {
-        $("#log").append("<br>Received: " + msg.data);
-    });
-    $("form#emit").submit(function (event) {
-        socket.emit("my_event", { data: $("#emit_data").val() });
-        return false;
+        $("#log").append(
+            "<li class='list-group-item  list-group-item-success'>" + "Received: " + msg.data + "<time class='ms-2'>" + new Date().toLocaleString("en-US", options) + "</time>" + "</li>"
+        );
     });
 
     $("form#broadcast").submit(function (event) {

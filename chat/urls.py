@@ -1,11 +1,6 @@
-
 from datetime import datetime
 import socketio, json, jwt
-from bottle import (
-    template,
-    request,
-    Bottle
-)
+from bottle import template, request, Bottle
 from composite.parts import con, f_dt, visited, who_is_who
 
 
@@ -29,12 +24,12 @@ sio = socketio.Server(
 # ..
 
 
-def user_visited(environ):
-    user_cookie = environ["HTTP_COOKIE"]
+def user_visited(headers):
+    user_cookie = headers["HTTP_COOKIE"]
 
     removed = user_cookie.replace(";", "")
-    i_token = dict(i.split('=') for i in removed.split())
-    token = i_token.get('visited')
+    i_token = dict(i.split("=") for i in removed.split())
+    token = i_token.get("visited")
 
     coockie_visited = jwt.decode(token, JWT_KEY, JWT_ALGORITHM)
     for_user = coockie_visited["mail"]
@@ -55,11 +50,12 @@ def save_msg(story, user):
     cur.close()
     return data
 
+
 # REPLACE
-def save_journal(environ):
+def save_journal(headers):
     start = datetime.now()
     f_start = start.strftime(F_TIME)
-    user_list = user_visited(environ)
+    user_list = user_visited(headers)
     data = user_list, f_start
     cur = con.cursor()
     cur.execute(
@@ -68,7 +64,7 @@ def save_journal(environ):
             user_list, connect
         )VALUES (?,?)
         """,
-        data
+        data,
     )
     con.commit()
     cur.close()
@@ -120,14 +116,13 @@ def chat_all_get():
 def my_event(sid, message):
     sio.emit("my_response", {"data": message["data"]}, room=sid)
 
+
 # ..
 
 
 @sio.event
 def my_broadcast_event(sid, message):
-    sio.emit(
-        "my_response", {"data": message["data"], "user": message["user"]}
-    )
+    sio.emit("my_response", {"data": message["data"], "user": message["user"]})
     print("broadcast....", message["data"], message["user"])
 
     dump_msg = json.dumps(message)
@@ -136,61 +131,40 @@ def my_broadcast_event(sid, message):
     print("save msg....")
 
 
-# ..
-
-
-@sio.event
-def join(sid, message):
-    sio.enter_room(sid, message["room"])
-    sio.emit("my_response", {"data": "Entered room: " + message["room"]}, room=sid)
+clients = 0
 
 @sio.event
-def leave(sid, message):
-    sio.leave_room(sid, message["room"])
-    sio.emit("my_response", {"data": "Left room: " + message["room"]}, room=sid)
+def connect(sid, headers):
+    global clients
+    clients += 1
 
-@sio.event
-def close_room(sid, message):
     sio.emit(
-        "my_response",
-        {"data": "Room " + message["room"] + " is closing."},
-        room=message["room"],
+        "my_response", {"data": "Connected..!", "count": clients}, room=sid
     )
-    sio.close_room(message["room"])
-
-@sio.event
-def my_room_event(sid, message):
-    sio.emit("my_response", {"data": message["data"]}, room=message["room"])
-
-@sio.event
-def disconnect_request(sid):
-    sio.disconnect(sid)
-    print("disconnect_request..", sid)
+    sio.emit(
+        "email", {"user": user_visited(headers)}
+    )
 
 
-# ..
+    print(f" Client connect..! sid.. {sid} clients.. {clients}")
+    print(f"user headers.. {user_visited(headers)}")
 
+    save_journal(headers)
 
-@sio.event
-def connect(sid, environ):
-    sio.emit("my_response", {"data": "Connected", "count": 0}, room=sid)
-
-    print(f" Client connect..! {sid}")
-    print(f" user environ.. {user_visited(environ)}")
-
-    save_journal(environ)
-
-    print(f"save journal connect.. {user_visited(environ)} {datetime.now()}")
-
+    print(f"save journal connect.. {user_visited(headers)} {datetime.now()}")
 
 
 @sio.event
 def my_message(sid, data):
-    print('message.. (my_message)' , data)
+    print(f"message.. (my_message) {data}")
+
 
 @sio.event
 def disconnect(sid):
-    print("Client disconnected..! ", sid)
+    global clients
+    clients -= 1
+
+    print(f" Client disconnected..! sid.. {sid} clients.. {clients}")
 
     user_cookie = sio.get_environ(sid, "/")["HTTP_COOKIE"]
 
@@ -210,9 +184,48 @@ def disconnect(sid):
             user_list, disconnect
         )VALUES (?,?)
         """,
-        data
+        data,
     )
     con.commit()
     cur.close()
 
     print(f"save journal disconnect.. {for_user} {datetime.now()}")
+
+
+# ..
+
+
+@sio.event
+def join(sid, message):
+    sio.enter_room(sid, message["room"])
+    sio.emit("my_response", {"data": "Entered room: " + message["room"]}, room=sid)
+
+
+@sio.event
+def leave(sid, message):
+    sio.leave_room(sid, message["room"])
+    sio.emit("my_response", {"data": "Left room: " + message["room"]}, room=sid)
+
+
+@sio.event
+def close_room(sid, message):
+    sio.emit(
+        "my_response",
+        {"data": "Room " + message["room"] + " is closing."},
+        room=message["room"],
+    )
+    sio.close_room(message["room"])
+
+
+@sio.event
+def my_room_event(sid, message):
+    sio.emit("my_response", {"data": message["data"]}, room=message["room"])
+
+
+# ..
+
+
+@sio.event
+def disconnect_request(sid):
+    sio.disconnect(sid)
+    print(f"disconnect_request.. {sid}")

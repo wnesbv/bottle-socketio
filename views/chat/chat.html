@@ -3,43 +3,26 @@
 
 <h1 class="container lead my-2">SocketIO</h1>
 
-<button type="button" class="btn btn-sm btn-primary" id="toastbtn">
-    Show live user
-</button>
+<div class="mb-2">
+    <span>online:
+        <span id="count" class="mx-1"></span>
+    </span>
+    <span>user:
+        <span id="user" class="mx-1"></span>
+    </span>
+
+    <button type="button" class="btn btn-sm btn-primary" id="toastbtn">
+        show live user
+    </button>
+</div>
+
 <div class="card">
 
     <div class="card-header">
         <h3 class="lead">create chat</h3>
     </div>
         <div class="card-body">
-            <form id="emit" method="POST" action="#" class="d-flex">
-                <input
-                    type="text"
-                    name="emit_data"
-                    id="emit_data"
-                    placeholder="Message"
-                    class="form-control w-75"
-                />
-                <input type="submit" value="Echo" class="btn btn-sm my-2 btn-outline-primary" />
-            </form>
 
-            <form id="broadcast" method="POST" action="#" class="d-flex">
-                <input
-                    required
-                    id="token"
-                    type="hidden"
-                    value="{{ token }}"
-                />
-                <input
-                    type="text"
-                    name="broadcast_data"
-                    id="broadcast_data"
-                    placeholder="Message"
-                    class="form-control w-75"
-                />
-                <input type="submit" value="Broadcast" class="btn btn-sm my-2 btn-outline-primary" />
-            </form>
-            
             <form id="join" method="POST" action="#" class="d-flex">
                 <input
                     type="text"
@@ -87,13 +70,33 @@
                 />
                 <input type="submit" value="Close Room" class="btn btn-sm my-2 btn-outline-primary" />
             </form>
+
+            <form id="broadcast" method="POST" action="#" class="d-flex">
+                <input
+                    required
+                    id="token"
+                    type="hidden"
+                    value="{{ token }}"
+                />
+                <input
+                    type="text"
+                    name="broadcast_data"
+                    id="broadcast_data"
+                    placeholder="Message"
+                    class="form-control w-75"
+                />
+                <input type="submit" value="Broadcast" class="btn btn-sm my-2 btn-outline-primary" />
+            </form>
+            
             <form id="disconnect" method="POST" action="#">
                 <input type="submit" value="Disconnect" class="btn btn-sm my-2 btn-outline-danger" />
             </form>
+
+
         </div>
         <div class="card-footer">
-        <h4>Receive:</h4>
-        <div><p id="log"></p></div>
+            <h4>Receive:</h4>
+            <ul id="log" class="list-group list-group-flush"></ul>
         </div>
 
         <ul id="db_messages" class="list-group list-group-flush">

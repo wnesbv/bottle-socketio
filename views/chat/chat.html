@@ -4,17 +4,33 @@
 <h1 class="container lead my-2">SocketIO</h1>
 
 <div class="mb-2">
-    <span>online:
-        <span id="count" class="mx-1"></span>
-    </span>
-    <span>user:
-        <span id="user" class="mx-1"></span>
-    </span>
+    <ul class="list-group list-group-flush">
 
+        <li id="count">
+            <span class="me-2">count:</span>
+        </li>
+    
+        <li class="list-group-item list-group-item-success mx-1">
+            <span class="float-start me-2">entrance:</span>
+            <span id="entrance" class="count"></span>
+        </li>
+        <li class="list-group-item list-group-item-success mx-1">
+            <span class="float-start me-2">keys:</span>
+            <span id="keys" class="count"></span>
+        </li>
+
+
+
+        <li class="list-group-item list-group-item-danger mx-1">
+            <span>exit:</span><span id="exit"></span>
+        </li>
+
+    </ul>
     <button type="button" class="btn btn-sm btn-primary" id="toastbtn">
         show live user
     </button>
 </div>
+
 
 <div class="card">
 

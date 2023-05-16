@@ -9,3 +9,9 @@ input:invalid + button{
     opacity: 0.6;
     pointer-events: none;
 }
+.count{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}

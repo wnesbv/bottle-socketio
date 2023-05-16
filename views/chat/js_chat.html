@@ -2,8 +2,19 @@
 
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
+
 <script>
+
 $(document).ready(function () {
+
+    keys = Object.keys(sessionStorage);
+    for(key of keys) {
+
+        $("#keys").prepend(
+            `${key}: ${sessionStorage.getItem(key)}`
+        );
+        console.log(`${key}: ${sessionStorage.getItem(key)}`);
+    }
 
     options = {
         hour: "2-digit",
@@ -12,13 +23,26 @@ $(document).ready(function () {
         hour12: false,
     };
 
+    count = 0
     socket = io.connect();
 
-    socket.once('my_response', function(my_response) {
+    socket.once("my_response", function (my_response) {
         $("#count").append(my_response.count);
     });
-    socket.on('email', function(email) {
-        $("#user").append(", " + email.user);
+
+    socket.on("entrance", function (entrance) {
+        keyperson = (++count + ": " + new Date().toLocaleString("en-US", options) + ", ")
+        person = (" " + entrance.email + ", ")
+        $("#entrance").prepend(
+            person
+        );
+        sessionStorage.setItem(entrance.email, keyperson);
+    });
+
+
+    socket.on("exit", function(exit) {
+        $("#exit").prepend(" " + exit.user + ",");
+        sessionStorage.removeItem(exit.user);
     });
 
     socket.on("connect", function () {
@@ -34,7 +58,7 @@ $(document).ready(function () {
     });
     socket.on("my_response", function (msg) {
         $("#log").append(
-            "<li class='list-group-item  list-group-item-success'>" + "Received: " + msg.data + "<time class='ms-2'>" + new Date().toLocaleString("en-US", options) + "</time>" + "</li>"
+            "<li class='list-group-item list-group-item-success'>" + "Received: " + msg.data + "<time class='ms-2'>" + new Date().toLocaleString("en-US", options) + "</time>" + "</li>"
         );
     });
 
@@ -66,6 +90,7 @@ $(document).ready(function () {
         socket.emit("close_room", { room: $("#close_room").val() });
         return false;
     });
+
     $("form#disconnect").submit(function (event) {
         socket.emit("disconnect_request");
         return false;
